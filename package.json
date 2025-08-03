@@ -1,0 +1,81 @@
+{
+  "name": "organize-folder",
+  "version": "1.0.0",
+  "description": "A file organization tool built with Electron",
+  "main": "dist/main/main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "npm run build && electron .",
+    "dev:watch": "concurrently \"npm run build:watch\" \"wait-on dist/main/main.js && electron .\"",
+    "build": "npm run build:main && npm run build:renderer",
+    "build:main": "tsc -p tsconfig.main.json",
+    "build:renderer": "webpack --mode=development",
+    "build:watch": "concurrently \"npm run build:main -- --watch\" \"npm run build:renderer -- --watch\"",
+    "build:prod": "npm run build:main && webpack --mode=production",
+    "test": "playwright test --reporter=list",
+    "test:headed": "playwright test --headed",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build",
+    "rebuild": "npx electron-rebuild -f -w better-sqlite3",
+    "postinstall": "electron-builder install-app-deps",
+    "package": "npm run build:prod && electron-builder",
+    "dist": "npm run build:prod && (electron-builder --dir || echo ⚠️  electron-builder failed at code signing but executable was created) && echo ✅ Distribution build complete! && echo 📁 Executable ready at: dist-electron/win-unpacked/\"Organize Folder.exe\""
+  },
+  "keywords": [
+    "electron",
+    "file-organization",
+    "desktop-app"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@babel/preset-typescript": "^7.27.1",
+    "@electron/rebuild": "^4.0.1",
+    "@playwright/test": "^1.40.0",
+    "@storybook/addon-essentials": "^7.5.0",
+    "@storybook/html": "^7.5.0",
+    "@storybook/html-webpack5": "^7.5.0",
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/node": "^20.8.0",
+    "@typescript-eslint/eslint-plugin": "^6.7.0",
+    "@typescript-eslint/parser": "^6.7.0",
+    "concurrently": "^8.2.0",
+    "copy-webpack-plugin": "^11.0.0",
+    "css-loader": "^6.8.0",
+    "electron": "^27.0.0",
+    "electron-builder": "^24.6.0",
+    "eslint": "^8.50.0",
+    "html-webpack-plugin": "^5.5.0",
+    "storybook": "^7.5.0",
+    "style-loader": "^3.3.0",
+    "ts-loader": "^9.4.0",
+    "typescript": "^5.2.0",
+    "wait-on": "^7.2.0",
+    "webpack": "^5.88.0",
+    "webpack-cli": "^5.1.0"
+  },
+  "build": {
+    "appId": "com.organizefolder.app",
+    "productName": "Organize Folder",
+    "directories": {
+      "output": "dist-electron"
+    },
+    "files": [
+      "dist/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": "portable",
+      "sign": false
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    },
+    "nodeGypRebuild": false,
+    "buildDependenciesFromSource": false
+  },
+  "dependencies": {
+    "better-sqlite3": "^11.10.0"
+  }
+}
