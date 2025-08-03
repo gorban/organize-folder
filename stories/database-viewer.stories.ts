@@ -174,7 +174,7 @@ const meta: Meta<DatabaseViewerArgs> = {
     
     // Create the database viewer
     const viewer = new DatabaseViewer({
-      className: args.className,
+      className: args.className ?? ''
     });
     
     // Mock the electron API for Storybook
