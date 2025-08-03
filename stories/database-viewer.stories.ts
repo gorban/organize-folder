@@ -188,7 +188,9 @@ const meta: Meta<DatabaseViewerArgs> = {
           success: true,
           data: data
         };
-      }
+      },
+      onScanProgress: () => {},
+      removeScanProgressListener: () => {}
     };
     
     viewer.render(container);

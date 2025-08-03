@@ -23,6 +23,8 @@ declare global {
       scanFolder: (folderPath: string) => Promise<{ success: boolean; message?: string }>;
       getHierarchy: () => Promise<{ success: boolean; data?: FileSystemObject[]; message?: string }>;
       getChildren: (parentId: number | null) => Promise<{ success: boolean; data?: FileSystemObject[]; message?: string }>;
+      onScanProgress: (callback: (folderCount: number, fileCount: number) => void) => void;
+      removeScanProgressListener: () => void;
     }
   }
 }
@@ -157,12 +159,24 @@ export class SelectFolder {
     }
   }
 
+  private updateProgressText(folderCount: number, fileCount: number): void {
+    const progressText = this.element.querySelector('.progress-text') as HTMLElement;
+    if (progressText) {
+      progressText.textContent = `Scanning... Found ${folderCount} folders, ${fileCount} files`;
+    }
+  }
+
   private async scanFolder(folderPath: string): Promise<void> {
     if (this.isScanning) return;
     
     this.isScanning = true;
     this.showProgress(true);
-    this.showStatus('Scanning folder...', 'info');
+    this.showStatus('Starting scan...', 'info');
+    
+    // Set up progress listener
+    window.electronAPI.onScanProgress((folderCount: number, fileCount: number) => {
+      this.updateProgressText(folderCount, fileCount);
+    });
     
     try {
       const result = await window.electronAPI.scanFolder(folderPath);
@@ -184,6 +198,9 @@ export class SelectFolder {
     } finally {
       this.isScanning = false;
       this.showProgress(false);
+      
+      // Clean up progress listener
+      window.electronAPI.removeScanProgressListener();
     }
   }
 

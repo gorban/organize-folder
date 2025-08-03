@@ -41,6 +41,35 @@ const createMockElectronAPI = (folderPath: string, showResult: boolean) => {
     },
     getChildren: async () => {
       return { success: true, data: [] };
+    },
+    onScanProgress: (callback: (folderCount: number, fileCount: number) => void) => {
+      // Simulate progress updates during scanning to match final hierarchy data
+      // Final count should be: 2 directories, 3 files
+      const finalFolderCount = 2;
+      const finalFileCount = 3;
+      
+      let currentFolderCount = 0;
+      let currentFileCount = 0;
+      
+      const interval = setInterval(() => {
+        // Gradually increment to reach final counts
+        if (currentFolderCount < finalFolderCount) {
+          currentFolderCount += 1;
+        }
+        if (currentFileCount < finalFileCount) {
+          currentFileCount += 1;
+        }
+        
+        callback(currentFolderCount, currentFileCount);
+        
+        // Stop when we reach final counts
+        if (currentFolderCount >= finalFolderCount && currentFileCount >= finalFileCount) {
+          clearInterval(interval);
+        }
+      }, 300);
+    },
+    removeScanProgressListener: () => {
+      // Mock cleanup - no-op for storybook
     }
   };
 };

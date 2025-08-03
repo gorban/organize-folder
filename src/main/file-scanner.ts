@@ -4,15 +4,23 @@ import { DatabaseService, FileSystemObject } from './database';
 
 export class FileScanner {
   private db: DatabaseService;
+  private folderCount: number = 0;
+  private fileCount: number = 0;
+  private progressCallback: ((folderCount: number, fileCount: number) => void) | undefined;
 
   constructor() {
     this.db = DatabaseService.getInstance();
   }
 
-  public async scanFolder(folderPath: string): Promise<void> {
+  public async scanFolder(folderPath: string, progressCallback?: (folderCount: number, fileCount: number) => void): Promise<void> {
     try {
       // Clear existing data before scanning new folder
       this.db.clearFileSystemObjects();
+      
+      // Reset counters and set progress callback
+      this.folderCount = 0;
+      this.fileCount = 0;
+      this.progressCallback = progressCallback;
       
       // Start scanning from the root folder
       await this.scanRecursive(folderPath, null);
@@ -40,6 +48,16 @@ export class FileScanner {
 
       // Insert into database and get the ID
       const objectId = this.db.insertFileSystemObject(fileObj);
+
+      // Update counters and emit progress
+      if (stats.isDirectory()) {
+        this.folderCount++;
+      } else {
+        this.fileCount++;
+      }
+      
+      // Call progress callback if provided
+      this.progressCallback?.(this.folderCount, this.fileCount);
 
       // If it's a directory, scan its contents
       if (stats.isDirectory()) {

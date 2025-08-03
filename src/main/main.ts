@@ -158,12 +158,18 @@ class OrganizeFolderApp {
     });
 
     // Handle folder scanning and database storage
-    ipcMain.handle('files:scanFolder', async (_event, folderPath: string) => {
+    ipcMain.handle('files:scanFolder', async (event, folderPath: string) => {
       try {
         if (!fileScanner) {
           throw new Error('FileScanner not initialized');
         }
-        await fileScanner.scanFolder(folderPath);
+        
+        // Set up progress callback to send updates to renderer
+        const progressCallback = (folderCount: number, fileCount: number) => {
+          event.sender.send('scan:progress', { folderCount, fileCount });
+        };
+        
+        await fileScanner.scanFolder(folderPath, progressCallback);
         return { success: true, message: 'Folder scanned successfully' };
       } catch (error) {
         console.error('Error scanning folder:', error);
