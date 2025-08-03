@@ -16,20 +16,20 @@ test.describe('Organize Folder App', () => {
     await window.waitForLoadState('domcontentloaded');
 
     // Check if the banner exists
-    const banner = await window.locator('[data-testid="app-banner"]');
+    const banner = window.locator('[data-testid="app-banner"]');
     await expect(banner).toBeVisible();
 
     // Check if the banner title exists and contains correct text
-    const bannerTitle = await window.locator('[data-testid="banner-title"]');
+    const bannerTitle = window.locator('[data-testid="banner-title"]');
     await expect(bannerTitle).toBeVisible();
     await expect(bannerTitle).toHaveText('Organize Folder');
 
     // Check if the main content area exists
-    const mainContent = await window.locator('#main-content');
+    const mainContent = window.locator('#main-content');
     await expect(mainContent).toBeVisible();
 
     // Check if the SelectFolder component button exists
-    const selectFolderBtn = await window.locator('[data-testid="select-folder-button"]');
+    const selectFolderBtn = window.locator('[data-testid="select-folder-button"]');
     await expect(selectFolderBtn).toBeVisible();
     await expect(selectFolderBtn).toHaveText('Choose Folder');
 
@@ -60,7 +60,7 @@ test.describe('Organize Folder App', () => {
     const window = await electronApp.firstWindow();
     await window.waitForLoadState('domcontentloaded');
 
-    const selectFolderBtn = await window.locator('[data-testid="select-folder-button"]');
+    const selectFolderBtn = window.locator('[data-testid="select-folder-button"]');
     await expect(selectFolderBtn).toBeEnabled();
     
     // Click the button (this will attempt to call electronAPI)

@@ -10,8 +10,7 @@ const config: StorybookConfig = {
     options: {},
   },
   typescript: {
-    check: false,
-    reactDocgen: false,
+    check: true
   },
   babel: async (options) => {
     return {

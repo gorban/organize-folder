@@ -36,19 +36,19 @@ test.describe('SelectFolder Component Tests', () => {
     await window.waitForTimeout(1000);
 
     // Verify component is rendered
-    const selectFolderComponent = await window.locator('[data-testid="select-folder"]');
+    const selectFolderComponent = window.locator('[data-testid="select-folder"]');
     await expect(selectFolderComponent).toBeVisible();
 
     // Verify button is present and has correct text
-    const selectButton = await window.locator('[data-testid="select-folder-button"]');
+    const selectButton = window.locator('[data-testid="select-folder-button"]');
     await expect(selectButton).toBeVisible();
     await expect(selectButton).toBeEnabled();
     await expect(selectButton).toHaveText('Choose Folder');
 
     // Verify initial state - hidden elements
-    const selectedPath = await window.locator('[data-testid="selected-path"]');
-    const scanStatus = await window.locator('[data-testid="scan-status"]');
-    const folderSummary = await window.locator('[data-testid="folder-summary"]');
+    const selectedPath = window.locator('[data-testid="selected-path"]');
+    const scanStatus = window.locator('[data-testid="scan-status"]');
+    const folderSummary = window.locator('[data-testid="folder-summary"]');
     
     await expect(selectedPath).toBeHidden();
     await expect(scanStatus).toBeHidden();
@@ -75,7 +75,7 @@ test.describe('SelectFolder Component Tests', () => {
     });
 
     // Click the button - this will attempt to call electronAPI.selectFolder()
-    const selectButton = await window.locator('[data-testid="select-folder-button"]');
+    const selectButton = window.locator('[data-testid="select-folder-button"]');
     await selectButton.click();
     
     // Wait a moment for any async operations
@@ -85,7 +85,7 @@ test.describe('SelectFolder Component Tests', () => {
     console.log('Console errors:', consoleErrors);
     
     // The component should still be visible after click
-    const selectFolderComponent = await window.locator('[data-testid="select-folder"]');
+    const selectFolderComponent = window.locator('[data-testid="select-folder"]');
     await expect(selectFolderComponent).toBeVisible();
 
     await electronApp.close();
@@ -101,23 +101,23 @@ test.describe('SelectFolder Component Tests', () => {
     await window.waitForTimeout(1000);
 
     // Check all expected elements exist with correct structure
-    const selectFolderComponent = await window.locator('[data-testid="select-folder"]');
+    const selectFolderComponent = window.locator('[data-testid="select-folder"]');
     await expect(selectFolderComponent).toBeVisible();
 
     // Check title
-    const title = await window.locator('.select-folder-title');
+    const title = window.locator('.select-folder-title');
     await expect(title).toBeVisible();
     await expect(title).toHaveText('Select Folder to Organize');
 
     // Check button
-    const button = await window.locator('[data-testid="select-folder-button"]');
+    const button = window.locator('[data-testid="select-folder-button"]');
     await expect(button).toBeVisible();
 
     // Check hidden elements exist but are not visible
-    const selectedPath = await window.locator('[data-testid="selected-path"]');
-    const scanStatus = await window.locator('[data-testid="scan-status"]');
-    const scanProgress = await window.locator('[data-testid="scan-progress"]');
-    const folderSummary = await window.locator('[data-testid="folder-summary"]');
+    const selectedPath = window.locator('[data-testid="selected-path"]');
+    const scanStatus = window.locator('[data-testid="scan-status"]');
+    const scanProgress = window.locator('[data-testid="scan-progress"]');
+    const folderSummary = window.locator('[data-testid="folder-summary"]');
 
     // All should exist in DOM but be hidden
     await expect(selectedPath).toBeAttached();
@@ -143,10 +143,10 @@ test.describe('SelectFolder Component Tests', () => {
     await window.waitForTimeout(1000);
 
     // Check CSS classes
-    const selectFolderComponent = await window.locator('[data-testid="select-folder"]');
+    const selectFolderComponent = window.locator('[data-testid="select-folder"]');
     await expect(selectFolderComponent).toHaveClass('select-folder');
 
-    const button = await window.locator('[data-testid="select-folder-button"]');
+    const button = window.locator('[data-testid="select-folder-button"]');
     await expect(button).toHaveClass('select-folder-button');
 
     // Check that styles are loaded (CSS file should be included)
@@ -171,10 +171,10 @@ test.describe('SelectFolder Component Tests', () => {
     await window.waitForTimeout(1000);
 
     // Verify the component is properly integrated into the app
-    const appBanner = await window.locator('[data-testid="app-banner"]');
-    const mainContent = await window.locator('#main-content');
-    const selectFolderContainer = await window.locator('#select-folder-container');
-    const selectFolderComponent = await window.locator('[data-testid="select-folder"]');
+    const appBanner = window.locator('[data-testid="app-banner"]');
+    const mainContent = window.locator('#main-content');
+    const selectFolderContainer = window.locator('#select-folder-container');
+    const selectFolderComponent = window.locator('[data-testid="select-folder"]');
 
     // All should be visible and properly nested
     await expect(appBanner).toBeVisible();
@@ -183,7 +183,7 @@ test.describe('SelectFolder Component Tests', () => {
     await expect(selectFolderComponent).toBeVisible();
 
     // Check the component is inside the container
-    const componentParent = await selectFolderComponent.locator('..').first();
+    const componentParent = selectFolderComponent.locator('..').first();
     await expect(componentParent).toHaveAttribute('id', 'select-folder-container');
 
     await electronApp.close();
