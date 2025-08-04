@@ -70,6 +70,14 @@ const createMockElectronAPI = (folderPath: string, showResult: boolean) => {
     },
     removeScanProgressListener: () => {
       // Mock cleanup - no-op for storybook
+    },
+    getAppState: async () => {
+      // Mock no previous state for storybook
+      return { success: true, data: null };
+    },
+    clearAppState: async () => {
+      // Mock cleanup - no-op for storybook
+      return { success: true, message: 'App state cleared' };
     }
   };
 };

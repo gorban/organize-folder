@@ -25,6 +25,8 @@ declare global {
       getChildren: (parentId: number | null) => Promise<{ success: boolean; data?: FileSystemObject[]; message?: string }>;
       onScanProgress: (callback: (folderCount: number, fileCount: number) => void) => void;
       removeScanProgressListener: () => void;
+      getAppState: () => Promise<{ success: boolean; data?: any; message?: string }>;
+      clearAppState: () => Promise<{ success: boolean; message?: string }>;
     }
   }
 }
@@ -39,6 +41,9 @@ export class SelectFolder {
     this.options = options;
     this.element = this.createElement();
     this.bindEvents();
+    
+    // Check for and restore previous state
+    this.checkPreviousState();
   }
 
   private createElement(): HTMLElement {
@@ -102,6 +107,9 @@ export class SelectFolder {
         throw new Error('Electron API not available');
       }
 
+      // Clear previous state when selecting new folder
+      await window.electronAPI.clearAppState();
+
       const result = await window.electronAPI.selectFolder();
       
       if (result.canceled || !result.filePaths || result.filePaths.length === 0) {
@@ -112,6 +120,8 @@ export class SelectFolder {
       const folderPath = result.filePaths[0];
       this.selectedPath = folderPath;
       
+      // Reset UI to new scan mode
+      this.updateButtonText('new');
       this.showSelectedPath(folderPath);
       this.options.onFolderSelected?.(folderPath);
       
@@ -166,6 +176,43 @@ export class SelectFolder {
     }
   }
 
+  private async checkPreviousState(): Promise<void> {
+    try {
+      if (!window.electronAPI) {
+        return;
+      }
+
+      const result = await window.electronAPI.getAppState();
+      
+      if (result.success && result.data && result.data.last_selected_folder && result.data.scan_completed) {
+        const folderPath = result.data.last_selected_folder;
+        
+        // Check if folder still exists by trying to scan it (this will validate the path)
+        this.selectedPath = folderPath;
+        this.showSelectedPath(folderPath);
+        this.updateButtonText('resume');
+        
+        // Load and display existing summary
+        await this.loadFolderSummary();
+        this.showStatus('Previous scan restored; otherwise, overwrite with "Choose New Folder".', 'info');
+      }
+    } catch (error) {
+      console.error('Error checking previous state:', error);
+      // Silently fail - just show normal interface
+    }
+  }
+
+  private updateButtonText(mode: 'new' | 'resume'): void {
+    const button = this.element.querySelector('.select-folder-button') as HTMLButtonElement;
+    if (button) {
+      if (mode === 'resume') {
+        button.textContent = 'Choose New Folder';
+      } else {
+        button.textContent = 'Choose Folder';
+      }
+    }
+  }
+
   private async scanFolder(folderPath: string): Promise<void> {
     if (this.isScanning) return;
     
@@ -184,6 +231,9 @@ export class SelectFolder {
       if (result.success) {
         this.showStatus('Folder scanned successfully!', 'success');
         this.options.onScanComplete?.(true);
+        
+        // Update button text to "Choose New Folder" after successful scan
+        this.updateButtonText('resume');
         
         // Load and display summary
         await this.loadFolderSummary();

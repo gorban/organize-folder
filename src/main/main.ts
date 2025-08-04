@@ -1,5 +1,6 @@
 import { app, BrowserWindow, ipcMain } from 'electron';
 import * as path from 'path';
+import { DatabaseService } from './database';
 
 class OrganizeFolderApp {
   private mainWindow: BrowserWindow | null = null;
@@ -170,6 +171,11 @@ class OrganizeFolderApp {
         };
         
         await fileScanner.scanFolder(folderPath, progressCallback);
+        
+        // Save app state on successful scan completion
+        const db = DatabaseService.getInstance();
+        db.saveAppState(folderPath, true);
+        
         return { success: true, message: 'Folder scanned successfully' };
       } catch (error) {
         console.error('Error scanning folder:', error);
@@ -207,6 +213,36 @@ class OrganizeFolderApp {
         return { success: true, data: children };
       } catch (error) {
         console.error('Error getting children:', error);
+        return { 
+          success: false, 
+          message: error instanceof Error ? error.message : 'Unknown error occurred' 
+        };
+      }
+    });
+
+    // Handle getting app state
+    ipcMain.handle('app:getState', async () => {
+      try {
+        const db = DatabaseService.getInstance();
+        const state = db.getAppState();
+        return { success: true, data: state };
+      } catch (error) {
+        console.error('Error getting app state:', error);
+        return { 
+          success: false, 
+          message: error instanceof Error ? error.message : 'Unknown error occurred' 
+        };
+      }
+    });
+
+    // Handle clearing app state
+    ipcMain.handle('app:clearState', async () => {
+      try {
+        const db = DatabaseService.getInstance();
+        db.clearAppState();
+        return { success: true, message: 'App state cleared successfully' };
+      } catch (error) {
+        console.error('Error clearing app state:', error);
         return { 
           success: false, 
           message: error instanceof Error ? error.message : 'Unknown error occurred' 

@@ -18,5 +18,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
   },
   removeScanProgressListener: () => {
     ipcRenderer.removeAllListeners('scan:progress');
-  }
+  },
+  
+  // App state management
+  getAppState: () => ipcRenderer.invoke('app:getState'),
+  clearAppState: () => ipcRenderer.invoke('app:clearState')
 });

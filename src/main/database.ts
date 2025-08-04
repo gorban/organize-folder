@@ -13,6 +13,13 @@ export interface FileSystemObject {
   modified_at: string;
 }
 
+export interface AppState {
+  id?: number;
+  last_selected_folder: string | null;
+  scan_timestamp: string | null;
+  scan_completed: boolean;
+}
+
 export class DatabaseService {
   private db: Database.Database;
   private static instance: DatabaseService;
@@ -60,6 +67,13 @@ export class DatabaseService {
       CREATE INDEX IF NOT EXISTS idx_file_objects_parent_id ON file_objects (parent_id);
       CREATE INDEX IF NOT EXISTS idx_file_objects_path ON file_objects (path);
       CREATE INDEX IF NOT EXISTS idx_file_objects_type ON file_objects (type);
+      
+      CREATE TABLE IF NOT EXISTS app_state (
+        id INTEGER PRIMARY KEY CHECK (id = 1),
+        last_selected_folder TEXT,
+        scan_timestamp TEXT,
+        scan_completed INTEGER DEFAULT 0 CHECK (scan_completed IN (0, 1))
+      );
     `);
   }
 
@@ -123,5 +137,34 @@ export class DatabaseService {
 
   public close(): void {
     this.db.close();
+  }
+
+  public saveAppState(folderPath: string, scanCompleted: boolean = true): void {
+    const stmt = this.db.prepare(`
+      INSERT OR REPLACE INTO app_state (id, last_selected_folder, scan_timestamp, scan_completed)
+      VALUES (1, ?, ?, ?)
+    `);
+    
+    stmt.run(folderPath, new Date().toISOString(), scanCompleted ? 1 : 0);
+  }
+
+  public getAppState(): AppState | null {
+    const stmt = this.db.prepare('SELECT * FROM app_state WHERE id = 1');
+    const result = stmt.get() as any;
+    
+    if (!result) {
+      return null;
+    }
+    
+    return {
+      id: result.id,
+      last_selected_folder: result.last_selected_folder,
+      scan_timestamp: result.scan_timestamp,
+      scan_completed: Boolean(result.scan_completed)
+    };
+  }
+
+  public clearAppState(): void {
+    this.db.exec('DELETE FROM app_state WHERE id = 1');
   }
 }

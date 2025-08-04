@@ -190,7 +190,9 @@ const meta: Meta<DatabaseViewerArgs> = {
         };
       },
       onScanProgress: () => {},
-      removeScanProgressListener: () => {}
+      removeScanProgressListener: () => {},
+      getAppState: async () => ({ success: true, data: null }),
+      clearAppState: async () => ({ success: true, message: 'App state cleared' })
     };
     
     viewer.render(container);
